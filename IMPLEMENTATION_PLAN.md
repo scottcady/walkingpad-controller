@@ -5,6 +5,12 @@
 
 ---
 
+## Progress Tracking Instructions
+
+**For Claude Code sessions:** Update this document in real time as you complete implementation steps. Mark checkboxes with `[x]` immediately after completing each task. This ensures continuity across sessions and provides clear visibility into project status.
+
+---
+
 ## Table of Contents
 
 1. [Overview](#overview)
@@ -400,40 +406,40 @@ final class SettingsService {
 
 ## Implementation Phases
 
-### Phase 1: Project Setup
-- [ ] Create Xcode project (iOS App, SwiftUI, Swift)
-- [ ] Add HealthKit capability
-- [ ] Copy DesignSystem files from Compound Fitness
-- [ ] Create Core Data model (WalkingSession entity)
-- [ ] Create Persistence.swift with history tracking enabled
-- [ ] Create app entry point with environment setup
+### Phase 1: Project Setup ✅
+- [x] Create Xcode project (iOS App, SwiftUI, Swift)
+- [x] Add HealthKit capability
+- [x] Copy DesignSystem files from Compound Fitness
+- [x] Create Core Data model (WalkingSession entity)
+- [x] Create Persistence.swift with history tracking enabled
+- [x] Create app entry point with environment setup
 
 **Deliverable:** App builds and runs with empty UI, Core Data stack ready.
 
 ---
 
-### Phase 2: Settings & Configuration
-- [ ] Create SettingsService (UserDefaults wrapper)
-- [ ] Create SettingsView with bridge URL text field
-- [ ] Add URL validation (http:// prefix, port format)
-- [ ] Store/retrieve URL on app launch
+### Phase 2: Settings & Configuration ✅
+- [x] Create SettingsService (UserDefaults wrapper)
+- [x] Create SettingsView with bridge URL text field
+- [x] Add URL validation (http:// prefix, port format)
+- [x] Store/retrieve URL on app launch
 
 **Deliverable:** User can configure and persist bridge URL.
 
 ---
 
-### Phase 3: Bridge Communication
-- [ ] Create BridgeStatus model (Codable)
-- [ ] Create PadState enum with display names
-- [ ] Create BridgeAPIError with user-friendly messages
-- [ ] Implement WalkingPadService:
-  - [ ] checkConnection()
-  - [ ] fetchStatus()
-  - [ ] start()
-  - [ ] stop()
-  - [ ] setSpeed()
-- [ ] Add timeout handling (5 seconds)
-- [ ] Add proper error mapping from HTTP responses
+### Phase 3: Bridge Communication ✅
+- [x] Create BridgeStatus model (Codable)
+- [x] Create PadState enum with display names
+- [x] Create BridgeAPIError with user-friendly messages
+- [x] Implement WalkingPadService:
+  - [x] checkConnection()
+  - [x] fetchStatus()
+  - [x] start()
+  - [x] stop()
+  - [x] setSpeed()
+- [x] Add timeout handling (5 seconds)
+- [x] Add proper error mapping from HTTP responses
 
 **Deliverable:** Can communicate with bridge, handle all error states.
 
