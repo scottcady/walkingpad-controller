@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSHealthShareUsageDescription</key>
+    <string>WalkingPad Controller reads health data to avoid duplicate workouts.</string>
+
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>WalkingPad Controller saves your walking sessions as workouts in Apple Health.</string>
+
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>WalkingPad Controller connects to your WalkingPad bridge on your local network.</string>
+
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_http._tcp</string>
+    </array>
+</dict>
+</plist>
