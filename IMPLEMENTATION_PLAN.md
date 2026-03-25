@@ -445,25 +445,25 @@ final class SettingsService {
 
 ---
 
-### Phase 4: Control UI
-- [ ] Create MainTabView (Control, History, Settings tabs)
-- [ ] Create ConnectionBanner component:
-  - [ ] Disconnected state
-  - [ ] Connecting state
-  - [ ] Error state with message
-- [ ] Create ControlView:
-  - [ ] Connection status at top
-  - [ ] Start/Stop button (state-aware)
-  - [ ] Disabled state when not connected
-- [ ] Create SpeedControl:
-  - [ ] Current speed display
-  - [ ] Increment/decrement buttons (0.1 km/h steps)
-  - [ ] Min/max bounds (0.5 - 6.0 km/h)
-- [ ] Create MetricsCard:
-  - [ ] Elapsed time (MM:SS format)
-  - [ ] Distance (X.XX km)
-  - [ ] Steps count
-  - [ ] Current speed
+### Phase 4: Control UI ✅
+- [x] Create MainTabView (Control, History, Settings tabs)
+- [x] Create ConnectionBanner component:
+  - [x] Disconnected state
+  - [x] Connecting state
+  - [x] Error state with message
+- [x] Create ControlView:
+  - [x] Connection status at top
+  - [x] Start/Stop button (state-aware)
+  - [x] Disabled state when not connected
+- [x] Create SpeedControl:
+  - [x] Current speed display
+  - [x] Increment/decrement buttons (0.1 km/h steps)
+  - [x] Min/max bounds (0.5 - 6.0 km/h)
+- [x] Create MetricsCard:
+  - [x] Elapsed time (MM:SS format)
+  - [x] Distance (X.XX km)
+  - [x] Steps count
+  - [x] Current speed
 
 **Deliverable:** Full control UI with live feedback, proper error states.
 
