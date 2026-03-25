@@ -4,6 +4,7 @@ import SwiftUI
 /// Displays connection status, metrics, speed control, and start/stop button.
 struct ControlView: View {
     @State private var walkingPadService = WalkingPadService.shared
+    @State private var sessionRecorder = SessionRecorder.shared
     @State private var targetSpeed: Double = 3.0
     @State private var isLoading = false
     @State private var showError = false
@@ -16,8 +17,20 @@ struct ControlView: View {
                     // Connection status
                     ConnectionBanner(connectionState: walkingPadService.connectionState)
 
-                    // Metrics display
-                    if let status = walkingPadService.lastStatus {
+                    // Polling error banner (only during recording)
+                    if sessionRecorder.isRecording, let pollingError = sessionRecorder.lastPollingError {
+                        pollingErrorBanner(error: pollingError)
+                    }
+
+                    // Metrics display - show live metrics when recording, otherwise pad status
+                    if sessionRecorder.isRecording, let metrics = sessionRecorder.liveMetrics {
+                        MetricsCard(
+                            elapsedSeconds: metrics.elapsedSeconds,
+                            distanceKm: metrics.distanceKm,
+                            steps: metrics.steps,
+                            currentSpeedKmh: metrics.currentSpeedKmh
+                        )
+                    } else if let status = walkingPadService.lastStatus {
                         MetricsCard(
                             elapsedSeconds: status.time,
                             distanceKm: status.distance,
@@ -57,7 +70,7 @@ struct ControlView: View {
                     } label: {
                         Image(systemName: "arrow.clockwise")
                     }
-                    .disabled(isLoading)
+                    .disabled(isLoading || sessionRecorder.isRecording)
                 }
             }
             .task {
@@ -71,15 +84,34 @@ struct ControlView: View {
         }
     }
 
+    // MARK: - Polling Error Banner
+
+    @ViewBuilder
+    private func pollingErrorBanner(error: BridgeAPIError) -> some View {
+        HStack(spacing: Theme.spacing.sm) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(ColorTokens.warning)
+
+            Text("Connection unstable: \(error.errorDescription ?? "Unknown error")")
+                .font(.system(size: 14))
+                .foregroundStyle(ColorTokens.textSecondary)
+
+            Spacer()
+        }
+        .padding(Theme.spacing.sm)
+        .background(ColorTokens.warning.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.radius.sm))
+    }
+
     // MARK: - Start/Stop Button
 
     @ViewBuilder
     private var startStopButton: some View {
-        let isRunning = walkingPadService.lastStatus?.padState.isActive ?? false
+        let isRecording = sessionRecorder.isRecording
 
         Button {
             Task {
-                await togglePad(isRunning: isRunning)
+                await toggleSession()
             }
         } label: {
             HStack(spacing: Theme.spacing.sm) {
@@ -87,16 +119,16 @@ struct ControlView: View {
                     ProgressView()
                         .tint(.white)
                 } else {
-                    Image(systemName: isRunning ? "stop.fill" : "play.fill")
+                    Image(systemName: isRecording ? "stop.fill" : "play.fill")
                 }
 
-                Text(isRunning ? "Stop" : "Start")
+                Text(isRecording ? "Stop" : "Start")
                     .font(.system(size: 20, weight: .semibold))
             }
             .frame(maxWidth: .infinity)
             .frame(height: 56)
             .foregroundStyle(.white)
-            .background(buttonBackgroundColor(isRunning: isRunning))
+            .background(buttonBackgroundColor(isRecording: isRecording))
             .clipShape(RoundedRectangle(cornerRadius: Theme.radius.md))
         }
         .disabled(!canControlPad || isLoading)
@@ -108,11 +140,11 @@ struct ControlView: View {
         walkingPadService.connectionState.isConnected
     }
 
-    private func buttonBackgroundColor(isRunning: Bool) -> Color {
+    private func buttonBackgroundColor(isRecording: Bool) -> Color {
         guard canControlPad else {
             return ColorTokens.disabled
         }
-        return isRunning ? ColorTokens.error : ColorTokens.success
+        return isRecording ? ColorTokens.error : ColorTokens.success
     }
 
     // MARK: - Actions
@@ -131,24 +163,42 @@ struct ControlView: View {
         }
     }
 
-    private func togglePad(isRunning: Bool) async {
+    private func toggleSession() async {
         isLoading = true
         defer { isLoading = false }
 
-        do {
-            if isRunning {
+        if sessionRecorder.isRecording {
+            // Stop the session
+            do {
                 try await walkingPadService.stop()
-            } else {
-                try await walkingPadService.start()
-                // Set the target speed after starting
-                try await walkingPadService.setSpeed(targetSpeed)
+            } catch let error as BridgeAPIError {
+                showError(error.errorDescription ?? "Failed to stop pad")
+                return
+            } catch {
+                showError(error.localizedDescription)
+                return
             }
-            // Refresh status after action
-            _ = try await walkingPadService.fetchStatus()
-        } catch let error as BridgeAPIError {
-            showError(error.errorDescription ?? "Operation failed")
-        } catch {
-            showError(error.localizedDescription)
+
+            // Stop recording (finalizes session to Core Data)
+            _ = await sessionRecorder.stopRecording()
+
+        } else {
+            // Start a new session
+            do {
+                try await walkingPadService.start()
+                try await walkingPadService.setSpeed(targetSpeed)
+                // Fetch initial status for baseline
+                _ = try await walkingPadService.fetchStatus()
+            } catch let error as BridgeAPIError {
+                showError(error.errorDescription ?? "Failed to start pad")
+                return
+            } catch {
+                showError(error.localizedDescription)
+                return
+            }
+
+            // Start recording
+            sessionRecorder.startRecording()
         }
     }
 
