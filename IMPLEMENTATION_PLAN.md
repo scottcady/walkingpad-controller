@@ -483,18 +483,18 @@ final class SettingsService {
 
 ---
 
-### Phase 6: HealthKit Integration
-- [ ] Implement HealthKitService:
-  - [ ] requestAuthorization()
-  - [ ] saveWalkingSession()
-- [ ] Request authorization on first session start
-- [ ] Create HKWorkout with:
-  - [ ] activityType: .walking
-  - [ ] start/end dates
-  - [ ] duration
-  - [ ] totalDistance
-- [ ] Mark session.syncedToHealth = true on success
-- [ ] Handle authorization denied gracefully
+### Phase 6: HealthKit Integration ✅
+- [x] Implement HealthKitService:
+  - [x] requestAuthorization()
+  - [x] saveWalkingSession()
+- [x] Request authorization on first session start
+- [x] Create HKWorkout with:
+  - [x] activityType: .walking
+  - [x] start/end dates
+  - [x] duration
+  - [x] totalDistance
+- [x] Mark session.syncedToHealth = true on success
+- [x] Handle authorization denied gracefully
 
 **Deliverable:** Completed sessions appear in Apple Health.
 

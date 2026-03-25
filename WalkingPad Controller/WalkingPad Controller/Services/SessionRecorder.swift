@@ -1,7 +1,7 @@
 import Foundation
 import CoreData
 
-/// Manages active walking session lifecycle: polling, Core Data persistence.
+/// Manages active walking session lifecycle: polling, Core Data persistence, and HealthKit sync.
 /// Handles starting/stopping sessions and maintaining live metrics during recording.
 @Observable
 final class SessionRecorder {
@@ -20,6 +20,9 @@ final class SessionRecorder {
 
     /// Last polling error (cleared on successful poll)
     private(set) var lastPollingError: BridgeAPIError?
+
+    /// Whether HealthKit sync failed for the last completed session
+    private(set) var healthKitSyncFailed = false
 
     // MARK: - Live Metrics
 
@@ -48,6 +51,7 @@ final class SessionRecorder {
 
     private let walkingPadService = WalkingPadService.shared
     private let persistence = PersistenceController.shared
+    private let healthKitService = HealthKitService.shared
 
     /// Baseline values captured at session start (pad counters are cumulative)
     private var baselineTime: Int = 0
@@ -68,8 +72,16 @@ final class SessionRecorder {
 
     /// Starts recording a new walking session.
     /// Creates a Core Data entity and begins polling for status updates.
+    /// Requests HealthKit authorization if not already authorized.
     func startRecording() {
         guard !isRecording else { return }
+
+        // Request HealthKit authorization on first session (non-blocking)
+        if healthKitService.isAvailable && !healthKitService.isAuthorized {
+            Task {
+                await healthKitService.requestAuthorization()
+            }
+        }
 
         // Create the session entity
         let context = persistence.viewContext
@@ -89,6 +101,7 @@ final class SessionRecorder {
         isRecording = true
         lastPollingError = nil
         consecutiveErrors = 0
+        healthKitSyncFailed = false
 
         // Capture baseline from current pad status
         if let status = walkingPadService.lastStatus {
@@ -115,7 +128,7 @@ final class SessionRecorder {
     }
 
     /// Stops the current recording session.
-    /// Finalizes the Core Data entity with final metrics.
+    /// Finalizes the Core Data entity with final metrics and syncs to HealthKit.
     /// - Returns: The completed session, or nil if no session was recording
     @discardableResult
     func stopRecording() async -> WalkingSession? {
@@ -134,6 +147,10 @@ final class SessionRecorder {
 
         // Finalize the session
         finalizeSession(session)
+
+        // Sync to HealthKit
+        let syncSuccess = await healthKitService.saveWalkingSession(session)
+        healthKitSyncFailed = !syncSuccess
 
         // Reset state
         isRecording = false
