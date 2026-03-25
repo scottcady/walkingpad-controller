@@ -469,15 +469,15 @@ final class SettingsService {
 
 ---
 
-### Phase 5: Session Recording
-- [ ] Implement SessionRecorder:
-  - [ ] startRecording() — create Core Data entity, start polling
-  - [ ] Polling loop (1-second interval)
-  - [ ] Update liveMetrics on each poll
-  - [ ] stopRecording() — cancel polling, finalize entity
-- [ ] Handle polling errors gracefully (don't crash session)
-- [ ] Calculate averageSpeedKmh on finalization
-- [ ] Test with simulated bridge responses
+### Phase 5: Session Recording ✅
+- [x] Implement SessionRecorder:
+  - [x] startRecording() — create Core Data entity, start polling
+  - [x] Polling loop (1-second interval)
+  - [x] Update liveMetrics on each poll
+  - [x] stopRecording() — cancel polling, finalize entity
+- [x] Handle polling errors gracefully (don't crash session)
+- [x] Calculate averageSpeedKmh on finalization
+- [x] Integrate with ControlView for live metrics display
 
 **Deliverable:** Sessions recorded to Core Data with accurate metrics.
 
