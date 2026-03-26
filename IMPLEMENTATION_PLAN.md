@@ -505,17 +505,17 @@ final class SettingsService {
 
 ---
 
-### Phase 7: History
-- [ ] Create HistoryView with @FetchRequest
-- [ ] Sort by startTime descending
-- [ ] Create SessionRow component:
-  - [ ] Date/time
-  - [ ] Duration
-  - [ ] Distance
-  - [ ] Steps
-  - [ ] HealthKit sync indicator
-- [ ] Empty state when no sessions
-- [ ] Optional: swipe to delete
+### Phase 7: History ✅
+- [x] Create HistoryView with @FetchRequest
+- [x] Sort by startTime descending
+- [x] Create SessionRow component:
+  - [x] Date/time
+  - [x] Duration
+  - [x] Distance
+  - [x] Steps
+  - [x] HealthKit sync indicator
+- [x] Empty state when no sessions
+- [x] Optional: swipe to delete
 
 **Deliverable:** Users can view past sessions.
 
