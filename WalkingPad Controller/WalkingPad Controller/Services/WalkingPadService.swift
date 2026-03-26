@@ -23,12 +23,7 @@ final class WalkingPadService {
     private let timeoutInterval: TimeInterval = 5.0
 
     /// URLSession configured with timeout
-    private lazy var session: URLSession = {
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = timeoutInterval
-        config.timeoutIntervalForResource = timeoutInterval
-        return URLSession(configuration: config)
-    }()
+    private let session: URLSession
 
     /// Reference to settings service for bridge URL
     private let settings = SettingsService.shared
@@ -208,5 +203,10 @@ final class WalkingPadService {
 
     // MARK: - Initialization
 
-    private init() {}
+    private init() {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 5.0
+        config.timeoutIntervalForResource = 5.0
+        self.session = URLSession(configuration: config)
+    }
 }
