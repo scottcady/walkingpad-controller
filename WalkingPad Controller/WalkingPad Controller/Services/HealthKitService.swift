@@ -1,5 +1,6 @@
 import Foundation
 import HealthKit
+import CoreData
 
 /// Handles HealthKit authorization and workout writes for walking sessions.
 /// Saves completed walking sessions as HKWorkout records in Apple Health.
@@ -117,10 +118,9 @@ final class HealthKitService {
         }
 
         // Ensure we have authorization
-        guard isAuthorized else {
-            // Try to get authorization first
+        if !isAuthorized {
             let authorized = await requestAuthorization()
-            guard authorized else { return false }
+            if !authorized { return false }
         }
 
         // Validate session data
