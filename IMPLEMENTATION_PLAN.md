@@ -114,9 +114,12 @@ Matches Compound Fitness exactly for lift-and-place compatibility:
 
 ```
 WalkingPad Controller/
+├── WalkingPad Controller.xcodeproj/           # Xcode project file
+│
 ├── WalkingPad Controller/
 │   ├── App/
-│   │   └── WalkingPadControllerApp.swift      # App entry point
+│   │   ├── WalkingPadControllerApp.swift      # App entry point
+│   │   └── ContentView.swift                  # Root content view
 │   │
 │   ├── Persistence/
 │   │   ├── Persistence.swift                  # Core Data stack
@@ -153,9 +156,11 @@ WalkingPad Controller/
 │   │   ├── TypographyTokens.swift
 │   │   └── RadiusTokens.swift
 │   │
-│   └── Info.plist
-│
-├── WalkingPad Controller.entitlements
+│   ├── Assets.xcassets/                       # App icons and images
+│   │   └── AppIcon.appiconset/
+│   │
+│   ├── WalkingPad Controller.entitlements     # HealthKit entitlement
+│   └── Info.plist                             # App configuration
 │
 └── WalkingPad ControllerTests/
     ├── WalkingPadServiceTests.swift
@@ -530,6 +535,39 @@ final class SettingsService {
 - [ ] Clean up any debug code
 
 **Deliverable:** Production-ready MVP.
+
+---
+
+### Xcode Project Setup ✅ (Added 2026-03-26)
+
+The Xcode project was created and configured in this session:
+
+- [x] Create WalkingPad Controller.xcodeproj
+- [x] Configure Bundle Identifier (`com.scottcady.WalkingPadController`)
+- [x] Set minimum deployment target to iOS 17.0
+- [x] Add HealthKit capability via Signing & Capabilities
+- [x] Configure Info.plist path in Build Settings
+- [x] Configure entitlements path in Build Settings
+- [x] Create Assets.xcassets with AppIcon placeholder
+- [x] Add all source files to target
+- [x] Verify app builds and runs in iOS Simulator
+
+**Build Fixes Applied:**
+
+1. **WalkingPadService.swift** — Changed `lazy var session: URLSession` to `let session: URLSession` initialized in `init()` (required for `@Observable` macro compatibility)
+
+2. **HealthKitService.swift** — Added `import CoreData` for `NSPredicate` and fetch operations
+
+3. **HealthKitService.swift** — Fixed guard statement fallthrough in `saveWalkingSession()` by converting to `if !isAuthorized` pattern
+
+4. **Info.plist** — Added missing required keys:
+   - `CFBundleExecutable`
+   - `CFBundleName`
+   - `CFBundlePackageType`
+   - `CFBundleShortVersionString`
+   - `CFBundleVersion`
+
+**Deliverable:** App builds and runs in iOS Simulator. Ready for physical device testing.
 
 ---
 
