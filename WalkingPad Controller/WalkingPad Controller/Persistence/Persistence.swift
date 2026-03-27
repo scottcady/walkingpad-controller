@@ -1,4 +1,7 @@
 import CoreData
+import os.log
+
+private let logger = Logger(subsystem: "com.scottcady.WalkingPadController", category: "Persistence")
 
 struct PersistenceController {
     static let shared = PersistenceController()
@@ -71,7 +74,7 @@ struct PersistenceController {
                 try context.save()
             } catch {
                 let nsError = error as NSError
-                print("Core Data save error: \(nsError), \(nsError.userInfo)")
+                logger.error("Core Data save error: \(nsError), \(nsError.userInfo)")
             }
         }
     }

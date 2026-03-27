@@ -1,6 +1,9 @@
 import Foundation
 import HealthKit
 import CoreData
+import os.log
+
+private let logger = Logger(subsystem: "com.scottcady.WalkingPadController", category: "HealthKit")
 
 /// Handles HealthKit authorization and workout writes for walking sessions.
 /// Saves completed walking sessions as HKWorkout records in Apple Health.
@@ -177,7 +180,7 @@ final class HealthKitService {
                 await saveWalkingSession(session)
             }
         } catch {
-            print("Failed to fetch unsynced sessions: \(error)")
+            logger.error("Failed to fetch unsynced sessions: \(error)")
         }
     }
 

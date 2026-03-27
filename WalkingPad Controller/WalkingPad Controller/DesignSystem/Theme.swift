@@ -19,6 +19,11 @@ enum Theme {
         static let standard = SwiftUI.Animation.easeInOut(duration: 0.25)
         static let slow = SwiftUI.Animation.easeInOut(duration: 0.4)
         static let spring = SwiftUI.Animation.spring(response: 0.3, dampingFraction: 0.7)
+
+        /// Returns the animation if reduceMotion is disabled, nil otherwise
+        static func respecting(reduceMotion: Bool, _ animation: SwiftUI.Animation) -> SwiftUI.Animation? {
+            reduceMotion ? nil : animation
+        }
     }
 
     // MARK: - Shadows

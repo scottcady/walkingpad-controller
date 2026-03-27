@@ -1,0 +1,3 @@
+[console_scripts]
+ph4-cal = ph4_walkingpad.cal:main
+ph4-walkingpad-ctl = ph4_walkingpad.main:main

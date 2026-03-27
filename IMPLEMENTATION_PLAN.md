@@ -522,8 +522,9 @@ final class SettingsService {
 ---
 
 ### Phase 8: Polish & Testing
-- [ ] Add haptic feedback on start/stop
-- [ ] Respect accessibilityReduceMotion
+- [x] Add haptic feedback on start/stop
+- [x] Respect accessibilityReduceMotion
+- [x] Clean up any debug code (replaced print() with os.log)
 - [ ] Test on device with real bridge
 - [ ] Test error scenarios:
   - [ ] Bridge unreachable
@@ -532,7 +533,6 @@ final class SettingsService {
 - [ ] Test HealthKit edge cases:
   - [ ] Authorization denied
   - [ ] Write failure
-- [ ] Clean up any debug code
 
 **Deliverable:** Production-ready MVP.
 

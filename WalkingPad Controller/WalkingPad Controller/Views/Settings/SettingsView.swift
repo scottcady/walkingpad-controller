@@ -4,6 +4,7 @@ struct SettingsView: View {
     @State private var bridgeURLText: String = ""
     @State private var validationError: String?
     @State private var showingSaveConfirmation = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let settings = SettingsService.shared
 
@@ -94,12 +95,12 @@ struct SettingsView: View {
     }
 
     private func showSaveConfirmation() {
-        withAnimation(Theme.Animation.quick) {
+        withAnimation(Theme.Animation.respecting(reduceMotion: reduceMotion, Theme.Animation.quick)) {
             showingSaveConfirmation = true
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            withAnimation(Theme.Animation.quick) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [reduceMotion] in
+            withAnimation(Theme.Animation.respecting(reduceMotion: reduceMotion, Theme.Animation.quick)) {
                 showingSaveConfirmation = false
             }
         }

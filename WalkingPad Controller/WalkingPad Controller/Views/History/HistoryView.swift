@@ -3,6 +3,7 @@ import CoreData
 
 struct HistoryView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \WalkingSession.startTime, ascending: false)],
@@ -68,7 +69,7 @@ struct HistoryView: View {
     // MARK: - Actions
 
     private func deleteSessions(at offsets: IndexSet) {
-        withAnimation {
+        withAnimation(Theme.Animation.respecting(reduceMotion: reduceMotion, .default)) {
             offsets.map { sessions[$0] }.forEach(viewContext.delete)
             PersistenceController.shared.save()
         }
