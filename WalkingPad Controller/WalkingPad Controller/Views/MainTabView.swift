@@ -1,6 +1,13 @@
 import SwiftUI
 
 struct MainTabView: View {
+    init() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithDefaultBackground()
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+
     var body: some View {
         TabView {
             ControlView()
@@ -18,6 +25,7 @@ struct MainTabView: View {
                     Label("Settings", systemImage: "gear")
                 }
         }
+        .tint(ColorTokens.accent)
     }
 }
 

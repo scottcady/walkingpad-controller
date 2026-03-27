@@ -1,44 +1,50 @@
 import SwiftUI
 
 /// Main control screen for the WalkingPad.
-/// Minimal layout: timer, start/stop button, speed slider.
+/// Minimal layout: timer, start/stop button, speed control.
 struct ControlView: View {
     @State private var walkingPadService = WalkingPadService.shared
     @State private var sessionRecorder = SessionRecorder.shared
-    @State private var targetSpeed: Double = 3.0
+    @State private var targetSpeed: Double = 2.0
     @State private var isLoading = false
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var hapticTrigger = false
+    @State private var speedHapticTrigger = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let minSpeed: Double = 0.5
-    private let maxSpeed: Double = 6.0
+    private let maxSpeed: Double = 4.0
+    private let speedStep: Double = 0.5
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Connection indicator
-            connectionIndicator
-                .padding(.top, Theme.spacing.md)
+        ZStack {
+            ColorTokens.surface
+                .ignoresSafeArea()
 
-            Spacer()
+            VStack(spacing: 0) {
+                // Connection indicator
+                connectionIndicator
+                    .padding(.top, Theme.spacing.md)
 
-            // Timer display
-            timerDisplay
+                Spacer()
 
-            Spacer()
+                // Timer display
+                timerDisplay
 
-            // Start/Stop button
-            startStopButton
-                .padding(.bottom, Theme.spacing.xl)
+                Spacer()
 
-            // Speed slider
-            speedSlider
-                .padding(.horizontal, Theme.spacing.xl)
-                .padding(.bottom, Theme.spacing.xl)
+                // Start/Stop button
+                startStopButton
+
+                Spacer()
+
+                // Speed control
+                speedControl
+                    .padding(.horizontal, Theme.spacing.xl)
+                    .padding(.bottom, Theme.spacing.md)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(ColorTokens.surface)
         .task {
             await walkingPadService.checkConnection()
         }
@@ -172,47 +178,79 @@ struct ControlView: View {
         .disabled(!canControlPad || isLoading)
     }
 
-    // MARK: - Speed Slider
+    // MARK: - Speed Control
 
     @ViewBuilder
-    private var speedSlider: some View {
-        VStack(spacing: Theme.spacing.sm) {
-            HStack {
-                Text("Speed")
-                    .font(Theme.typography.caption)
-                    .foregroundStyle(ColorTokens.textSecondary)
+    private var speedControl: some View {
+        HStack(spacing: Theme.spacing.lg) {
+            // Decrease speed button
+            Button {
+                decreaseSpeed()
+            } label: {
+                Text("−")
+                    .font(.system(size: 36, weight: .medium))
+                    .foregroundStyle(canDecreaseSpeed ? ColorTokens.textPrimary : ColorTokens.textSecondary)
+                    .frame(width: 72, height: 72)
+                    .background(ColorTokens.surfaceElevated)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.radius.md))
+            }
+            .disabled(!canDecreaseSpeed)
+            .sensoryFeedback(.impact(weight: .medium), trigger: speedHapticTrigger)
 
-                Spacer()
-
-                Text(String(format: "%.1f km/h", targetSpeed))
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
+            // Speed display
+            VStack(spacing: Theme.spacing.xs) {
+                Text(String(format: "%.1f", targetSpeed))
+                    .font(.system(size: 40, weight: .semibold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(canControlPad ? ColorTokens.textPrimary : ColorTokens.textSecondary)
-            }
 
-            Slider(value: $targetSpeed, in: minSpeed...maxSpeed, step: 0.5) { editing in
-                if !editing {
-                    handleSpeedChange(targetSpeed)
-                }
-            }
-            .tint(ColorTokens.accent)
-            .disabled(!canControlPad)
-
-            HStack {
-                Text(String(format: "%.1f", minSpeed))
-                    .font(Theme.typography.caption)
-                    .foregroundStyle(ColorTokens.textSecondary)
-
-                Spacer()
-
-                Text(String(format: "%.1f", maxSpeed))
+                Text("mph")
                     .font(Theme.typography.caption)
                     .foregroundStyle(ColorTokens.textSecondary)
             }
+            .frame(minWidth: 100)
+
+            // Increase speed button
+            Button {
+                increaseSpeed()
+            } label: {
+                Text("+")
+                    .font(.system(size: 36, weight: .medium))
+                    .foregroundStyle(canIncreaseSpeed ? ColorTokens.textPrimary : ColorTokens.textSecondary)
+                    .frame(width: 72, height: 72)
+                    .background(ColorTokens.surfaceElevated)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.radius.md))
+            }
+            .disabled(!canIncreaseSpeed)
+            .sensoryFeedback(.impact(weight: .medium), trigger: speedHapticTrigger)
         }
         .padding(Theme.spacing.lg)
         .background(ColorTokens.surfaceElevated)
         .clipShape(RoundedRectangle(cornerRadius: Theme.radius.md))
+    }
+
+    private var canDecreaseSpeed: Bool {
+        canControlPad && targetSpeed > minSpeed
+    }
+
+    private var canIncreaseSpeed: Bool {
+        canControlPad && targetSpeed < maxSpeed
+    }
+
+    private func decreaseSpeed() {
+        guard canDecreaseSpeed else { return }
+        speedHapticTrigger.toggle()
+        let newSpeed = max(minSpeed, targetSpeed - speedStep)
+        targetSpeed = newSpeed
+        handleSpeedChange(newSpeed)
+    }
+
+    private func increaseSpeed() {
+        guard canIncreaseSpeed else { return }
+        speedHapticTrigger.toggle()
+        let newSpeed = min(maxSpeed, targetSpeed + speedStep)
+        targetSpeed = newSpeed
+        handleSpeedChange(newSpeed)
     }
 
     // MARK: - Computed Properties

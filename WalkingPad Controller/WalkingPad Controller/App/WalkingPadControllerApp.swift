@@ -8,6 +8,7 @@ struct WalkingPadControllerApp: App {
         WindowGroup {
             MainTabView()
                 .environment(\.managedObjectContext, persistenceController.viewContext)
+                .preferredColorScheme(.dark)
         }
     }
 }
