@@ -204,7 +204,7 @@ struct ControlView: View {
                     .monospacedDigit()
                     .foregroundStyle(canControlPad ? ColorTokens.textPrimary : ColorTokens.textSecondary)
 
-                Text("mph")
+                Text("km/h")
                     .font(Theme.typography.caption)
                     .foregroundStyle(ColorTokens.textSecondary)
             }
