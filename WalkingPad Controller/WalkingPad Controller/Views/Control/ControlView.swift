@@ -5,7 +5,7 @@ import SwiftUI
 struct ControlView: View {
     @State private var connectionManager = ConnectionManager.shared
     @State private var sessionRecorder = SessionRecorder.shared
-    @State private var targetSpeed: Double = 2.0
+    @State private var targetSpeed: Double = 2.5
     @State private var isLoading = false
     @State private var showError = false
     @State private var errorMessage = ""
