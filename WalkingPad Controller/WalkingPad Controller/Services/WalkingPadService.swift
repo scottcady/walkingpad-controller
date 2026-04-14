@@ -3,7 +3,7 @@ import Foundation
 /// Service for communicating with the WalkingPad bridge API.
 /// Manages connection state and provides methods for controlling the treadmill.
 @Observable
-final class WalkingPadService {
+final class WalkingPadService: PadConnectionService {
     static let shared = WalkingPadService()
 
     // MARK: - Published State
@@ -27,20 +27,6 @@ final class WalkingPadService {
 
     /// Reference to settings service for bridge URL
     private let settings = SettingsService.shared
-
-    // MARK: - Connection State
-
-    enum ConnectionState: Equatable {
-        case disconnected
-        case connecting
-        case connected
-        case error(String)
-
-        var isConnected: Bool {
-            if case .connected = self { return true }
-            return false
-        }
-    }
 
     // MARK: - Public API
 
@@ -102,6 +88,11 @@ final class WalkingPadService {
         let rawValue = Int(clampedSpeed * 10)
 
         _ = try await performRequest(endpoint: "/speed/\(rawValue)", method: "POST")
+    }
+
+    /// Disconnects from the bridge (no-op for HTTP, just updates state)
+    func disconnect() async {
+        connectionState = .disconnected
     }
 
     // MARK: - Private Methods

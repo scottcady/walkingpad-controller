@@ -3,7 +3,7 @@ import SwiftUI
 /// Main control screen for the WalkingPad.
 /// Minimal layout: timer, start/stop button, speed control.
 struct ControlView: View {
-    @State private var walkingPadService = WalkingPadService.shared
+    @State private var connectionManager = ConnectionManager.shared
     @State private var sessionRecorder = SessionRecorder.shared
     @State private var targetSpeed: Double = 2.0
     @State private var isLoading = false
@@ -46,7 +46,7 @@ struct ControlView: View {
             }
         }
         .task {
-            await walkingPadService.checkConnection()
+            await connectionManager.checkConnection()
         }
         .alert("Error", isPresented: $showError) {
             Button("OK", role: .cancel) {}
@@ -73,7 +73,7 @@ struct ControlView: View {
             if !sessionRecorder.isRecording {
                 Button {
                     Task {
-                        await walkingPadService.checkConnection()
+                        await connectionManager.checkConnection()
                     }
                 } label: {
                     Image(systemName: "arrow.clockwise")
@@ -86,7 +86,7 @@ struct ControlView: View {
     }
 
     private var connectionColor: Color {
-        switch walkingPadService.connectionState {
+        switch connectionManager.connectionState {
         case .connected:
             return ColorTokens.success
         case .connecting:
@@ -97,7 +97,7 @@ struct ControlView: View {
     }
 
     private var connectionText: String {
-        switch walkingPadService.connectionState {
+        switch connectionManager.connectionState {
         case .connected:
             return "Connected"
         case .connecting:
@@ -131,7 +131,7 @@ struct ControlView: View {
         let seconds: Int
         if sessionRecorder.isRecording, let metrics = sessionRecorder.liveMetrics {
             seconds = metrics.elapsedSeconds
-        } else if let status = walkingPadService.lastStatus {
+        } else if let status = connectionManager.lastStatus {
             seconds = status.time
         } else {
             seconds = 0
@@ -256,7 +256,7 @@ struct ControlView: View {
     // MARK: - Computed Properties
 
     private var canControlPad: Bool {
-        walkingPadService.connectionState.isConnected
+        connectionManager.connectionState.isConnected
     }
 
     private func buttonBackgroundColor(isRecording: Bool) -> Color {
@@ -273,7 +273,7 @@ struct ControlView: View {
 
         Task {
             do {
-                try await walkingPadService.setSpeed(newSpeed)
+                try await connectionManager.setSpeed(newSpeed)
             } catch let error as BridgeAPIError {
                 showError(error.errorDescription ?? "Failed to set speed")
             } catch {
@@ -288,7 +288,7 @@ struct ControlView: View {
 
         if sessionRecorder.isRecording {
             do {
-                try await walkingPadService.stop()
+                try await connectionManager.stop()
             } catch let error as BridgeAPIError {
                 showError(error.errorDescription ?? "Failed to stop pad")
                 return
@@ -301,9 +301,9 @@ struct ControlView: View {
 
         } else {
             do {
-                try await walkingPadService.start()
-                try await walkingPadService.setSpeed(targetSpeed)
-                _ = try await walkingPadService.fetchStatus()
+                try await connectionManager.start()
+                try await connectionManager.setSpeed(targetSpeed)
+                _ = try await connectionManager.fetchStatus()
             } catch let error as BridgeAPIError {
                 showError(error.errorDescription ?? "Failed to start pad")
                 return

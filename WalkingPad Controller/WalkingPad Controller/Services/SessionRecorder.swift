@@ -49,7 +49,7 @@ final class SessionRecorder {
 
     // MARK: - Private State
 
-    private let walkingPadService = WalkingPadService.shared
+    private let connectionManager = ConnectionManager.shared
     private let persistence = PersistenceController.shared
     private let healthKitService = HealthKitService.shared
 
@@ -104,7 +104,7 @@ final class SessionRecorder {
         healthKitSyncFailed = false
 
         // Capture baseline from current pad status
-        if let status = walkingPadService.lastStatus {
+        if let status = connectionManager.lastStatus {
             baselineTime = status.time
             baselineDistance = status.distance
             baselineSteps = status.steps
@@ -139,7 +139,7 @@ final class SessionRecorder {
 
         // Fetch final status
         do {
-            let finalStatus = try await walkingPadService.fetchStatus()
+            let finalStatus = try await connectionManager.fetchStatus()
             updateMetrics(from: finalStatus)
         } catch {
             // Use last known metrics if final fetch fails
@@ -194,7 +194,7 @@ final class SessionRecorder {
 
     private func poll() async {
         do {
-            let status = try await walkingPadService.fetchStatus()
+            let status = try await connectionManager.fetchStatus()
             await MainActor.run {
                 self.updateMetrics(from: status)
                 self.consecutiveErrors = 0

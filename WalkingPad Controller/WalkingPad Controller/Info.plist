@@ -22,6 +22,8 @@
 	<string>WalkingPad Controller reads health data to avoid duplicate workouts.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>WalkingPad Controller saves your walking sessions as workouts in Apple Health.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>WalkingPad Controller uses Bluetooth to connect directly to your WalkingPad treadmill.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>WalkingPad Controller connects to your WalkingPad bridge on your local network.</string>
 	<key>UILaunchStoryboardName</key>
