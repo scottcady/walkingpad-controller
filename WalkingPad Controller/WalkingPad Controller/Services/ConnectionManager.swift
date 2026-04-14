@@ -35,7 +35,7 @@ final class ConnectionManager {
     // MARK: - Services
 
     private let bridgeService = WalkingPadService.shared
-    private let bluetoothService: (any PadConnectionService)? = nil // Will be BluetoothPadService.shared when implemented
+    private let bluetoothService = BluetoothPadService.shared
 
     /// Returns the appropriate service based on current connection mode
     private var currentService: any PadConnectionService {
@@ -43,8 +43,7 @@ final class ConnectionManager {
         case .bridge:
             return bridgeService
         case .bluetooth:
-            // For now, fallback to bridge service until BluetoothPadService is implemented
-            return bluetoothService ?? bridgeService
+            return bluetoothService
         }
     }
 
@@ -95,7 +94,7 @@ final class ConnectionManager {
             case .bridge:
                 oldService = bridgeService
             case .bluetooth:
-                oldService = bluetoothService ?? bridgeService
+                oldService = bluetoothService
             }
 
             await oldService.disconnect()
@@ -119,7 +118,7 @@ final class ConnectionManager {
     private static func loadConnectionMode() -> ConnectionMode {
         guard let data = UserDefaults.standard.data(forKey: "connectionMode"),
               let mode = try? JSONDecoder().decode(ConnectionMode.self, from: data) else {
-            return .bridge // Default to bridge mode
+            return .bluetooth // Default to direct Bluetooth connection
         }
         return mode
     }

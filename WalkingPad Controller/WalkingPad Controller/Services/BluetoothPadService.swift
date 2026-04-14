@@ -6,6 +6,7 @@ import Observation
 /// Implements the PadConnectionService protocol using CoreBluetooth.
 @Observable
 final class BluetoothPadService: NSObject, PadConnectionService {
+    static let shared = BluetoothPadService()
 
     // MARK: - BLE Constants
 
