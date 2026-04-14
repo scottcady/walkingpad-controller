@@ -261,20 +261,29 @@ final class BluetoothPadService: NSObject, PadConnectionService {
 
     private func sendCommand(_ command: Data) async throws -> Data {
         guard let peripheral = peripheral,
-              let writeChar = writeCharacteristic,
-              let readChar = readCharacteristic else {
+              let writeChar = writeCharacteristic else {
             throw BridgeAPIError.padNotConnected
         }
 
         // Clear response buffer
         responseBuffer.removeAll()
 
+        // Determine write type based on characteristic properties
+        let writeType: CBCharacteristicWriteType
+        if writeChar.properties.contains(.writeWithoutResponse) {
+            writeType = .withoutResponse
+        } else if writeChar.properties.contains(.write) {
+            writeType = .withResponse
+        } else {
+            throw BridgeAPIError.bleFailure
+        }
+
         // Set up continuation for response
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Data, Error>) in
             readContinuation = continuation
 
-            // Write command
-            peripheral.writeValue(command, for: writeChar, type: .withResponse)
+            // Write command with appropriate type
+            peripheral.writeValue(command, for: writeChar, type: writeType)
 
             // Set timeout
             Task {
