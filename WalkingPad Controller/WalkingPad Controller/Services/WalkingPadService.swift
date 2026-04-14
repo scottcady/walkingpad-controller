@@ -78,10 +78,13 @@ final class WalkingPadService: PadConnectionService {
     }
 
     /// Sets the speed of the WalkingPad.
-    /// - Parameter kmh: Speed in km/h (valid range: 0.5 - 6.0)
+    /// - Parameter mph: Speed in mph (converted to km/h for the pad)
     /// - Throws: BridgeAPIError if the request fails
-    func setSpeed(_ kmh: Double) async throws {
-        // Clamp to valid range
+    func setSpeed(_ mph: Double) async throws {
+        // Convert mph to km/h (pad uses km/h internally)
+        let kmh = mph * 1.60934
+
+        // Clamp to valid range (0.5 - 6.0 km/h)
         let clampedSpeed = min(max(kmh, 0.5), 6.0)
 
         // Convert to raw value (multiply by 10)

@@ -5,7 +5,7 @@ import SwiftUI
 struct SessionRow: View {
     let date: Date
     let durationSeconds: Int
-    let distanceKm: Double
+    let distanceKm: Double  // Stored in km, displayed in miles
     let steps: Int
     let syncedToHealth: Bool
 
@@ -27,7 +27,7 @@ struct SessionRow: View {
             // Metrics
             HStack(spacing: Theme.spacing.md) {
                 MetricLabel(value: formattedDuration, label: "min")
-                MetricLabel(value: formattedDistance, label: "km")
+                MetricLabel(value: formattedDistance, label: "mi")
                 MetricLabel(value: "\(steps)", label: "steps")
             }
 
@@ -57,7 +57,9 @@ struct SessionRow: View {
     }
 
     private var formattedDistance: String {
-        String(format: "%.2f", distanceKm)
+        // Convert km to miles for display
+        let distanceMiles = distanceKm / 1.60934
+        return String(format: "%.2f", distanceMiles)
     }
 }
 

@@ -141,10 +141,13 @@ final class BluetoothPadService: NSObject, PadConnectionService {
         try await sendControlCommand(command)
     }
 
-    func setSpeed(_ kmh: Double) async throws {
+    func setSpeed(_ mph: Double) async throws {
         try await ensureConnected()
 
-        // Clamp speed to valid range
+        // Convert mph to km/h (pad uses km/h internally)
+        let kmh = mph * 1.60934
+
+        // Clamp speed to valid range (0-6 km/h)
         let clampedSpeed = max(0.0, min(6.0, kmh))
 
         // Convert km/h to raw value (multiply by 10)

@@ -5,7 +5,7 @@ import SwiftUI
 struct ControlView: View {
     @State private var connectionManager = ConnectionManager.shared
     @State private var sessionRecorder = SessionRecorder.shared
-    @State private var targetSpeed: Double = 2.5
+    @State private var targetSpeed: Double = 1.5  // mph
     @State private var isLoading = false
     @State private var showError = false
     @State private var errorMessage = ""
@@ -13,9 +13,9 @@ struct ControlView: View {
     @State private var speedHapticTrigger = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private let minSpeed: Double = 0.5
-    private let maxSpeed: Double = 4.0
-    private let speedStep: Double = 0.5
+    private let minSpeed: Double = 0.5   // mph
+    private let maxSpeed: Double = 4.0   // mph
+    private let speedStep: Double = 0.5  // mph
 
     var body: some View {
         ZStack {
@@ -158,7 +158,7 @@ struct ControlView: View {
                     .monospacedDigit()
                     .foregroundStyle(ColorTokens.textPrimary)
 
-                Text("km")
+                Text("mi")
                     .font(Theme.typography.caption)
                     .foregroundStyle(ColorTokens.textSecondary)
             }
@@ -189,15 +189,17 @@ struct ControlView: View {
     }
 
     private var formattedDistance: String {
-        let distance: Double
+        let distanceKm: Double
         if sessionRecorder.isRecording, let metrics = sessionRecorder.liveMetrics {
-            distance = metrics.distanceKm
+            distanceKm = metrics.distanceKm
         } else if let status = connectionManager.lastStatus {
-            distance = status.distance
+            distanceKm = status.distance
         } else {
-            distance = 0.0
+            distanceKm = 0.0
         }
-        return String(format: "%.2f", distance)
+        // Convert km to miles
+        let distanceMiles = distanceKm / 1.60934
+        return String(format: "%.2f", distanceMiles)
     }
 
     private var formattedSteps: String {
@@ -274,7 +276,7 @@ struct ControlView: View {
                     .monospacedDigit()
                     .foregroundStyle(canControlPad ? ColorTokens.textPrimary : ColorTokens.textSecondary)
 
-                Text("km/h")
+                Text("mph")
                     .font(Theme.typography.caption)
                     .foregroundStyle(ColorTokens.textSecondary)
             }
