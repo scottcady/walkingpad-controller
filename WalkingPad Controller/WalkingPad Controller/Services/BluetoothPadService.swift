@@ -123,21 +123,22 @@ final class BluetoothPadService: NSObject, PadConnectionService {
 
         // First set mode to manual (required before starting)
         let setModeCommand = buildCommand(type: 0x02, value: 0x01) // Manual mode
-        _ = try await sendCommand(setModeCommand)
+        try await sendControlCommand(setModeCommand)
 
         // Small delay to let mode change take effect
-        try await Task.sleep(nanoseconds: 100_000_000) // 100ms
+        try await Task.sleep(nanoseconds: 200_000_000) // 200ms
 
         // Send start command
         let startCommand = buildCommand(type: 0x04, value: 0x01)
-        _ = try await sendCommand(startCommand)
+        try await sendControlCommand(startCommand)
     }
 
     func stop() async throws {
         try await ensureConnected()
 
         // Stop by setting speed to 0
-        try await setSpeed(0.0)
+        let command = buildCommand(type: 0x01, value: 0x00)
+        try await sendControlCommand(command)
     }
 
     func setSpeed(_ kmh: Double) async throws {
@@ -150,7 +151,7 @@ final class BluetoothPadService: NSObject, PadConnectionService {
         let speedRaw = UInt8(clampedSpeed * 10)
 
         let command = buildCommand(type: 0x01, value: speedRaw)
-        _ = try await sendCommand(command)
+        try await sendControlCommand(command)
     }
 
     // MARK: - Private Connection Methods
@@ -259,6 +260,7 @@ final class BluetoothPadService: NSObject, PadConnectionService {
         return command
     }
 
+    /// Sends a command and waits for a response (used for status requests)
     private func sendCommand(_ command: Data) async throws -> Data {
         guard let peripheral = peripheral,
               let writeChar = writeCharacteristic else {
@@ -294,6 +296,30 @@ final class BluetoothPadService: NSObject, PadConnectionService {
                 }
             }
         }
+    }
+
+    /// Sends a control command without waiting for a response (used for start/stop/speed)
+    private func sendControlCommand(_ command: Data) async throws {
+        guard let peripheral = peripheral,
+              let writeChar = writeCharacteristic else {
+            throw BridgeAPIError.padNotConnected
+        }
+
+        // Determine write type based on characteristic properties
+        let writeType: CBCharacteristicWriteType
+        if writeChar.properties.contains(.writeWithoutResponse) {
+            writeType = .withoutResponse
+        } else if writeChar.properties.contains(.write) {
+            writeType = .withResponse
+        } else {
+            throw BridgeAPIError.bleFailure
+        }
+
+        // Write command without waiting for response
+        peripheral.writeValue(command, for: writeChar, type: writeType)
+
+        // Small delay to ensure command is processed
+        try await Task.sleep(nanoseconds: 50_000_000) // 50ms
     }
 
     // MARK: - Response Parsing
