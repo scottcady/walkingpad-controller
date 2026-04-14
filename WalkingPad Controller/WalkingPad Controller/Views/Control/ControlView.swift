@@ -32,6 +32,10 @@ struct ControlView: View {
                 // Timer display
                 timerDisplay
 
+                // Distance and steps
+                metricsDisplay
+                    .padding(.top, Theme.spacing.lg)
+
                 Spacer()
 
                 // Start/Stop button
@@ -140,6 +144,72 @@ struct ControlView: View {
         let mins = seconds / 60
         let secs = seconds % 60
         return String(format: "%02d:%02d", mins, secs)
+    }
+
+    // MARK: - Metrics Display
+
+    @ViewBuilder
+    private var metricsDisplay: some View {
+        HStack(spacing: Theme.spacing.xl) {
+            // Distance
+            VStack(spacing: Theme.spacing.xxs) {
+                Text(formattedDistance)
+                    .font(.system(size: 28, weight: .medium, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(ColorTokens.textPrimary)
+
+                Text("km")
+                    .font(Theme.typography.caption)
+                    .foregroundStyle(ColorTokens.textSecondary)
+            }
+            .frame(minWidth: 80)
+
+            // Divider
+            Rectangle()
+                .fill(ColorTokens.textTertiary.opacity(0.3))
+                .frame(width: 1, height: 40)
+
+            // Steps
+            VStack(spacing: Theme.spacing.xxs) {
+                Text(formattedSteps)
+                    .font(.system(size: 28, weight: .medium, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(ColorTokens.textPrimary)
+
+                Text("steps")
+                    .font(Theme.typography.caption)
+                    .foregroundStyle(ColorTokens.textSecondary)
+            }
+            .frame(minWidth: 80)
+        }
+        .padding(.horizontal, Theme.spacing.lg)
+        .padding(.vertical, Theme.spacing.md)
+        .background(ColorTokens.surfaceElevated.opacity(0.5))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.radius.md))
+    }
+
+    private var formattedDistance: String {
+        let distance: Double
+        if sessionRecorder.isRecording, let metrics = sessionRecorder.liveMetrics {
+            distance = metrics.distanceKm
+        } else if let status = connectionManager.lastStatus {
+            distance = status.distance
+        } else {
+            distance = 0.0
+        }
+        return String(format: "%.2f", distance)
+    }
+
+    private var formattedSteps: String {
+        let steps: Int
+        if sessionRecorder.isRecording, let metrics = sessionRecorder.liveMetrics {
+            steps = metrics.steps
+        } else if let status = connectionManager.lastStatus {
+            steps = status.steps
+        } else {
+            steps = 0
+        }
+        return "\(steps)"
     }
 
     // MARK: - Start/Stop Button
