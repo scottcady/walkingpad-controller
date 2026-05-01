@@ -146,6 +146,7 @@ final class HealthKitService {
             ),
             metadata: [
                 HKMetadataKeyWasUserEntered: false,
+                HKMetadataKeyIndoorWorkout: true,
                 "WalkingPadSessionID": session.id?.uuidString ?? ""
             ]
         )
